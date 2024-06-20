@@ -1,6 +1,5 @@
 mosquitto
 mosquitto*.tar.gz
 mosquitto*/
-zig-cache/
 zig-out/
 .zig-cache/
