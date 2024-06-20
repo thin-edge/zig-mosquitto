@@ -9,13 +9,16 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
-    mosquitto.addIncludePath(.{ .path = "mosquitto" });
-    mosquitto.addIncludePath(.{ .path = "mosquitto/src" });
-    mosquitto.addIncludePath(.{ .path = "mosquitto/lib" });
-    mosquitto.addIncludePath(.{ .path = "mosquitto/deps" });
-    mosquitto.addIncludePath(.{ .path = "mosquitto/include" });
-    mosquitto.addCSourceFiles(&.{
-        "mosquitto/src/mosquitto.c",
+
+    // ziglang 0.13.0 https://github.com/ziglang/zig/pull/19597
+    mosquitto.addIncludePath(b.path("mosquitto"));
+    mosquitto.addIncludePath(b.path("mosquitto/src"));
+    mosquitto.addIncludePath(b.path("mosquitto/lib"));
+    mosquitto.addIncludePath(b.path("mosquitto/deps"));
+    mosquitto.addIncludePath(b.path("mosquitto/include"));
+
+    const mosquitto_sources = [_][]const u8{
+       "mosquitto/src/mosquitto.c",
        "mosquitto/lib/alias_mosq.c",
        // "mosquitto/lib/handle_auth.c",       // The broker uses mosquitto/src/handle_auth.c
        // "mosquitto/lib/handle_disconnect.c",
@@ -91,12 +94,19 @@ pub fn build(b: *std.Build) void {
        "mosquitto/src/subs.c",
        "mosquitto/src/topic_tok.c",
        "mosquitto/src/will_delay.c",
-    }, &.{
+    };
+
+    const mosquitto_flags = [_][]const u8{
         "-DWITH_BROKER",
         "-DWITH_PERSISTENCE",
         "-DVERSION=\"2.0.18\"",
         "-Wall",
         "-W",
+    };
+
+    mosquitto.addCSourceFiles(.{
+        .files = &mosquitto_sources,
+        .flags = &mosquitto_flags,
     });
     mosquitto.linkLibC();
 
