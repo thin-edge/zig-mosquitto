@@ -7,7 +7,7 @@ PACKAGE_NAME := env("PACKAGE_NAME", "tedge-mosquitto")
 VERSION := env("VERSION", "2.0.18")
 
 # package version release suffix
-VERSION_RELEASE := env("VERSION_RELEASE", "6")
+VERSION_RELEASE := env("VERSION_RELEASE", "1")
 
 # ziglang build options to control different user options
 BUILD_OPTIONS := env("BUILD_OPTIONS", "")

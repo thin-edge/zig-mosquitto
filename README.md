@@ -1,14 +1,95 @@
 # zig build for mosquitto
 
-Cross compile mosquitto using zig build.
+Cross compile mosquitto using zig build (tested with ziglang 0.14.0).
 
 - produce static executables
-- no support for TLS
-- bridge disabled
+- support for TLS (with an option to disable it if it is not needed)
+- bridge enabled
+- no websocket support
+- no systemd support (e.g. SDNotify isn't enabled)
+
+## Build Pre-requisites
+
+* ziglang 0.14.0
+* [nfpm](https://nfpm.goreleaser.com/) (to build the linux packages)
+* wget (used to download the mosquitto source code)
+
+## Building
+
+1. Clone the project
+
+    ```sh
+    git clone https://github.com/thin-edge/zig-mosquitto
+    cd zig-mosquitto
+    ```
+
+2. Checkout/download the mosquitto source code
+
+    ```sh
+    just checkout-mosquitto
+    ```
+
+3. Build all targets
+
+    ```sh
+    just build-all
+    ```
+
+    If you don't want to include TLS, then you can run:
+
+    ```sh
+    just build-notls-all
+    ```
+
+4. Use the build linux packages under the `dist/` folder
+
+    ```sh
+    ls -l dist/
+
+    # Using DNF (Fedora, RHEL, AmazonLinux)
+    dnf install tedge-mosquitto*.rpm
+
+    # Using Debian/Ubuntu
+    apt-get install tedge-mosquitto*.deb
+    ```
+
+### Building a single target
+
+If you don't want to build for all of the targets, then you can build using
+
+The compiled `mosquitto` binary will be created under `./zig-out/mosquitto`, however it will only be the binary from the last build.
+
+**With TLS**
+
+```sh
+just build x86_64-linux-musl amd64
+
+just build aarch64-linux-musl arm64
+
+just build arm-linux-musleabihf arm7
+
+just build arm-linux-musleabi arm5
+
+just build riscv64-linux-musl riscv64
+```
+
+**Without TLS**
+
+```sh
+just build-notls x86_64-linux-musl amd64
+
+just build-notls aarch64-linux-musl arm64
+
+just build-notls arm-linux-musleabihf arm7
+
+just build-notls arm-linux-musleabi arm5
+
+just build-notls riscv64-linux-musl riscv64
+```
 
 ```shell
 # Clone: mainly a build.zig file
-$ git clone https://github.com/didier-wenzek/zig-mosquitto
+$ git clone https://github.com/thin-edge/zig-mosquitto
 $ cd zig-mosquitto
 
 # The build expect a mosquitto sub-directory with mosquitto sources 
@@ -24,7 +105,9 @@ $ file zig-out/bin/mosquitto
 zig-out/bin/mosquitto: ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), statically linked, stripped
 ```
 
-TODO:
+## TODO
 
-- Mosquitto version should not be hardcoded
-- [Build for multiple targets to make a release](https://ziglang.org/learn/build-system/#build-for-multiple-targets-to-make-a-release)
+The following items are still yet to be addressed/fixed:
+
+* [ ] Mosquitto version should not be hardcoded
+* [ ] Support for other init systems like OpenRC, SysVInit, s6-overlay
