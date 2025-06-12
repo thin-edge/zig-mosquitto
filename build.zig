@@ -1,8 +1,9 @@
 const std = @import("std");
 
-pub fn build(b: *std.Build) void {
+pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
+    const with_tls = b.option(bool, "WITH_TLS", "Build mosquitto with TLS") orelse false;
 
     const mosquitto = b.addExecutable(.{
         .name = "mosquitto",
@@ -16,6 +17,18 @@ pub fn build(b: *std.Build) void {
     mosquitto.addIncludePath(b.path("mosquitto/lib"));
     mosquitto.addIncludePath(b.path("mosquitto/deps"));
     mosquitto.addIncludePath(b.path("mosquitto/include"));
+
+    // Enable openssl
+    if (with_tls) {
+        const openssl = b.dependency("openssl", .{ .target = target, .optimize = optimize });
+        const libssl = openssl.artifact("ssl");
+        const libcrypto = openssl.artifact("crypto");
+        _ = for(libcrypto.root_module.include_dirs.items) |include_dir| {
+            try mosquitto.root_module.include_dirs.append(b.allocator, include_dir);
+        };
+        mosquitto.root_module.linkLibrary(libssl);
+        mosquitto.root_module.linkLibrary(libcrypto);
+    }
 
     const mosquitto_sources = [_][]const u8{
        "mosquitto/src/mosquitto.c",
@@ -96,17 +109,28 @@ pub fn build(b: *std.Build) void {
        "mosquitto/src/will_delay.c",
     };
 
-    const mosquitto_flags = [_][]const u8{
-        "-DWITH_BROKER",
-        "-DWITH_PERSISTENCE",
-        "-DVERSION=\"2.0.18\"",
-        "-Wall",
-        "-W",
-    };
+    // construct build arguments
+    var gpa: std.heap.GeneralPurposeAllocator(.{})=.{};
+    const alloc=gpa.allocator();
+    var mosquitto_flags = std.ArrayList([]const u8).init(alloc);
+    defer mosquitto_flags.deinit();
+
+    // optional flags
+    if (with_tls) {
+        try mosquitto_flags.append("-DWITH_TLS");
+    }
+
+    // common flags
+    try mosquitto_flags.append("-DWITH_BRIDGE");
+    try mosquitto_flags.append("-DWITH_BROKER");
+    try mosquitto_flags.append("-DWITH_PERSISTENCE");
+    try mosquitto_flags.append("-DVERSION=\"2.0.18\"");
+    try mosquitto_flags.append("-Wall");
+    try mosquitto_flags.append("-W");
 
     mosquitto.addCSourceFiles(.{
         .files = &mosquitto_sources,
-        .flags = &mosquitto_flags,
+        .flags = mosquitto_flags.items,
     });
     mosquitto.linkLibC();
 

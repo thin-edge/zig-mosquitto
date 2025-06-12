@@ -1,0 +1,88 @@
+# yaml-language-server: $schema=https://nfpm.goreleaser.com/static/schema.json
+---
+name: ${PACKAGE_NAME}
+arch: ${ARCH}
+platform: linux
+
+# Version. (required)
+# This will expand any env var you set in the field, e.g. version: ${SEMVER}
+# Some package managers, like deb, require the version to start with a digit.
+# Hence, you should not prefix the version with 'v'.
+version: ${VERSION}
+
+# Version Release, aka revision.
+# This will expand any env var you set in the field, e.g. release: ${VERSION_RELEASE}
+# This is appended to the `version` after `prerelease`. This should be
+# incremented if you release an updated package of the same upstream version,
+# and it should reset to 1 when bumping the version.
+release: "${VERSION_RELEASE}"
+
+# Section.
+# This is only used by the deb packager.
+# See: https://www.debian.org/doc/debian-policy/ch-archive.html#sections
+section: default
+
+# Priority.
+# Defaults to `optional` on deb
+# Defaults to empty on rpm and apk
+# See: https://www.debian.org/doc/debian-policy/ch-archive.html#priorities
+priority: extra
+
+maintainer: thin-edge.io <info@thin-edge.io>
+description: |
+  An Open Source MQTT v3.1/v3.1.1 Broker
+
+  Mosquitto is an open source message broker that implements the MQ Telemetry
+  Transport protocol version 3.1 and 3.1.1 MQTT provides a lightweight method
+  of carrying out messaging using a publish/subscribe model. This makes it
+  suitable for "machine to machine" messaging such as with low power sensors
+  or mobile devices such as phones, embedded computers or micro-controllers
+  like the Arduino.
+
+vendor: thin-edge.io
+homepage: https://thin-edge.io
+license: BSD
+
+disable_globbing: false
+
+provides:
+  - mosquitto
+
+replaces:
+  - mosquitto
+  - tedge-mosquitto-notls
+
+contents:
+  - src: zig-out/bin/mosquitto
+    dst: /usr/sbin/mosquitto
+    file_info:
+      mode: 0755
+
+  - src: packaging/conf/certs/README
+    dst: /etc/mosquitto/certs/README
+    type: config
+
+  - src: packaging/conf/ca_certificates/README
+    dst: /etc/mosquitto/ca_certificates/README
+    type: config
+
+  - src: packaging/conf/mosquitto.conf
+    dst: /etc/mosquitto/mosquitto.conf
+    type: config
+
+  - src: packaging/conf/conf.d/README
+    dst: /etc/mosquitto/conf.d/README
+    type: config
+
+  # systemd definition
+  - src: packaging/services/systemd/mosquitto.service
+    dst: /usr/lib/systemd/system/mosquitto.service
+    file_info:
+      mode: 0644
+
+# Scripts to run at specific stages
+scripts:
+  preinstall: ./packaging/scripts/preinstall.sh
+  postinstall: ./packaging/scripts/postinstall.sh
+  preremove: ./packaging/scripts/preremove.sh
+  postremove: ./packaging/scripts/postremove.sh

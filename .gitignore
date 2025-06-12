@@ -3,3 +3,4 @@ mosquitto*.tar.gz
 mosquitto*/
 zig-out/
 .zig-cache/
+dist/
