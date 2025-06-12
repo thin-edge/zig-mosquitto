@@ -4,3 +4,4 @@ mosquitto*/
 zig-out/
 .zig-cache/
 dist/
+.env
