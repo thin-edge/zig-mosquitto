@@ -32,7 +32,7 @@ checkout-mosquitto version=VERSION:
 
 # build the binary without tls
 build-notls target=TARGET package_arch=PACKAGE_TARGET:
-    zig build -Doptimize=ReleaseSmall -Dtarget={{target}} {{BUILD_OPTIONS}}
+    zig build -Doptimize=ReleaseSmall -Dtarget={{target}} -Dversion={{VERSION}} {{BUILD_OPTIONS}}
     mkdir -p dist/
     PACKAGE_NAME="{{PACKAGE_NAME}}-notls" REVISION={{REVISION}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p rpm -f ./packaging/nfpm.yaml -t {{OUTPUT_DIR}}/
     PACKAGE_NAME="{{PACKAGE_NAME}}-notls" REVISION={{REVISION}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p apk -f ./packaging/nfpm.yaml -t {{OUTPUT_DIR}}/
@@ -40,7 +40,7 @@ build-notls target=TARGET package_arch=PACKAGE_TARGET:
 
 # build the binary with tls enabled (default)
 build target=TARGET package_arch=PACKAGE_TARGET:
-    zig build -Doptimize=ReleaseSmall -Dtarget={{target}} -DWITH_TLS=true {{BUILD_OPTIONS}}
+    zig build -Doptimize=ReleaseSmall -Dtarget={{target}} -Dversion={{VERSION}} -DWITH_TLS=true {{BUILD_OPTIONS}}
     mkdir -p dist/
     PACKAGE_NAME="{{PACKAGE_NAME}}" REVISION={{REVISION}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p rpm -f ./packaging/nfpm.yaml -t {{OUTPUT_DIR}}/
     PACKAGE_NAME="{{PACKAGE_NAME}}" REVISION={{REVISION}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p apk -f ./packaging/nfpm.yaml -t {{OUTPUT_DIR}}/
