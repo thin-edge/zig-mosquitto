@@ -20,6 +20,9 @@ TARGET := env("TARGET", "x86_64-linux-musl")
 # to know how to translate these names to deb, rpm, apk etc.
 PACKAGE_TARGET := env("TARGET", "amd64")
 
+# output directory for the linux packages
+OUTPUT_DIR := "dist"
+
 # checkout the mosquitto source code
 checkout-mosquitto version=VERSION:
     wget https://mosquitto.org/files/source/mosquitto-{{version}}.tar.gz
@@ -31,17 +34,17 @@ checkout-mosquitto version=VERSION:
 build-notls target=TARGET package_arch=PACKAGE_TARGET:
     zig build -Doptimize=ReleaseSmall -Dtarget={{target}} {{BUILD_OPTIONS}}
     mkdir -p dist/
-    PACKAGE_NAME="{{PACKAGE_NAME}}-notls" VERSION_RELEASE={{VERSION_RELEASE}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p rpm -f ./packaging/nfpm.yaml -t dist/
-    PACKAGE_NAME="{{PACKAGE_NAME}}-notls" VERSION_RELEASE={{VERSION_RELEASE}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p apk -f ./packaging/nfpm.yaml -t dist/
-    PACKAGE_NAME="{{PACKAGE_NAME}}-notls" VERSION_RELEASE={{VERSION_RELEASE}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p deb -f ./packaging/nfpm.yaml -t dist/
+    PACKAGE_NAME="{{PACKAGE_NAME}}-notls" VERSION_RELEASE={{VERSION_RELEASE}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p rpm -f ./packaging/nfpm.yaml -t {{OUTPUT_DIR}}/
+    PACKAGE_NAME="{{PACKAGE_NAME}}-notls" VERSION_RELEASE={{VERSION_RELEASE}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p apk -f ./packaging/nfpm.yaml -t {{OUTPUT_DIR}}/
+    PACKAGE_NAME="{{PACKAGE_NAME}}-notls" VERSION_RELEASE={{VERSION_RELEASE}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p deb -f ./packaging/nfpm.yaml -t {{OUTPUT_DIR}}/
 
 # build the binary with tls enabled (default)
 build target=TARGET package_arch=PACKAGE_TARGET:
     zig build -Doptimize=ReleaseSmall -Dtarget={{target}} -DWITH_TLS=true {{BUILD_OPTIONS}}
     mkdir -p dist/
-    PACKAGE_NAME="{{PACKAGE_NAME}}" VERSION_RELEASE={{VERSION_RELEASE}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p rpm -f ./packaging/nfpm.yaml -t dist/
-    PACKAGE_NAME="{{PACKAGE_NAME}}" VERSION_RELEASE={{VERSION_RELEASE}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p apk -f ./packaging/nfpm.yaml -t dist/
-    PACKAGE_NAME="{{PACKAGE_NAME}}" VERSION_RELEASE={{VERSION_RELEASE}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p deb -f ./packaging/nfpm.yaml -t dist/
+    PACKAGE_NAME="{{PACKAGE_NAME}}" VERSION_RELEASE={{VERSION_RELEASE}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p rpm -f ./packaging/nfpm.yaml -t {{OUTPUT_DIR}}/
+    PACKAGE_NAME="{{PACKAGE_NAME}}" VERSION_RELEASE={{VERSION_RELEASE}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p apk -f ./packaging/nfpm.yaml -t {{OUTPUT_DIR}}/
+    PACKAGE_NAME="{{PACKAGE_NAME}}" VERSION_RELEASE={{VERSION_RELEASE}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p deb -f ./packaging/nfpm.yaml -t {{OUTPUT_DIR}}/
 
 # build all targets without tls
 build-notls-all:
@@ -61,4 +64,8 @@ build-all:
 
 # clean the distribution folders
 clean:
-    rm -rf dist/
+    rm -rf {{OUTPUT_DIR}}
+
+# Publish packages
+publish *args="":
+    ./ci/publish.sh --path "{{OUTPUT_DIR}}" {{args}}
