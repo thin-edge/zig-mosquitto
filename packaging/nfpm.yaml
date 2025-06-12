@@ -11,11 +11,11 @@ platform: linux
 version: ${VERSION}
 
 # Version Release, aka revision.
-# This will expand any env var you set in the field, e.g. release: ${VERSION_RELEASE}
+# This will expand any env var you set in the field, e.g. release: ${REVISION}
 # This is appended to the `version` after `prerelease`. This should be
 # incremented if you release an updated package of the same upstream version,
 # and it should reset to 1 when bumping the version.
-release: "${VERSION_RELEASE}"
+release: "${REVISION}"
 
 # Section.
 # This is only used by the deb packager.

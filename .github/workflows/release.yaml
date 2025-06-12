@@ -1,0 +1,80 @@
+name: release
+permissions:
+  contents: write
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: Package version. This should be based on the mosquitto version being built. e.g. 2.0.18
+        type: string
+        required: true
+        default: ""
+
+      revision:
+        description: Package version release (aka revision). e.g. 1
+        type: string
+        required: false
+        default: "1"
+
+      prerelease:
+        description: Is pre-release?
+        type: choice
+        options:
+          - "true"
+          - "false"
+        required: false
+        default: "true"
+
+jobs:
+  release:
+    name: Package and release
+    runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ inputs.version }}
+      REVISION: ${{ inputs.revision }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: "0.14.1"
+
+      - uses: extractions/setup-just@v2
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: 'stable'
+          cache: false
+      - run: go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
+        name: Install dependencies
+
+      - name: Checkout mosquitto
+        run: just checkout-mosquitto
+
+      - name: Build with tls
+        run: just build-all
+
+      - name: Build without tls
+        run: just build-notls-all
+
+      - name: Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          VERSION_FULL="${VERSION}-${REVISION}"
+          gh release create "$VERSION_FULL" --generate-notes --title "$VERSION_FULL" --prerelease=${{inputs.prerelease || 'true'}} --draft ./dist/*.*
+
+      - name: Publish
+        if: env.PUBLISH_TOKEN
+        env:
+          PUBLISH_TOKEN: ${{ secrets.PUBLISH_TOKEN }}
+          PUBLISH_REPO: ${{ secrets.PUBLISH_REPO }}
+          PUBLISH_OWNER: ${{ secrets.PUBLISH_OWNER }}
+        run: |
+          just publish
