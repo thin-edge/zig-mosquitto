@@ -4,6 +4,7 @@ pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
     const with_tls = b.option(bool, "WITH_TLS", "Build mosquitto with TLS") orelse false;
+    const version = b.option([]const u8, "version", "mosquitto version string") orelse "0.0.0";
 
     const mosquitto = b.addExecutable(.{
         .name = "mosquitto",
@@ -124,7 +125,12 @@ pub fn build(b: *std.Build) !void {
     try mosquitto_flags.append("-DWITH_BRIDGE");
     try mosquitto_flags.append("-DWITH_BROKER");
     try mosquitto_flags.append("-DWITH_PERSISTENCE");
-    try mosquitto_flags.append("-DVERSION=\"2.0.18\"");
+
+    // version
+    const version_flag = try std.fmt.allocPrint(alloc, "-DVERSION=\"{s}\"", .{version});
+    defer alloc.free(version_flag);
+    try mosquitto_flags.append(version_flag);
+
     try mosquitto_flags.append("-Wall");
     try mosquitto_flags.append("-W");
 

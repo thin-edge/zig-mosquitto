@@ -29,10 +29,22 @@ Cross compile mosquitto using zig build (tested with ziglang 0.14.0).
     just checkout-mosquitto
     ```
 
+    Or you can specify the mosquitto version by setting the `VERSION` environment variable.
+
+    ```sh
+    VERSION=2.0.21 just checkout-mosquitto
+    ```
+
 3. Build all targets
 
     ```sh
     just build-all
+    ```
+
+    Or specify the `VERSION` environment variable.
+
+    ```sh
+    VERSION=2.0.21 just build-all
     ```
 
     If you don't want to include TLS, then you can run:
@@ -109,5 +121,4 @@ zig-out/bin/mosquitto: ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV),
 
 The following items are still yet to be addressed/fixed:
 
-* [ ] Mosquitto version should not be hardcoded
 * [ ] Support for other init systems like OpenRC, SysVInit, s6-overlay
