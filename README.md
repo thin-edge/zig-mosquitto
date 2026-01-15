@@ -1,6 +1,6 @@
 # zig build for mosquitto
 
-Cross compile mosquitto using zig build (tested with ziglang 0.14.0).
+Cross compile mosquitto using zig build (tested with ziglang 0.15.1).
 
 - produce static executables
 - support for TLS (with an option to disable it if it is not needed)
@@ -10,9 +10,13 @@ Cross compile mosquitto using zig build (tested with ziglang 0.14.0).
 
 ## Build Pre-requisites
 
-* ziglang 0.14.0
+* ziglang 0.15.1
+* [just](https://github.com/casey/just) >= 1.15.0
 * [nfpm](https://nfpm.goreleaser.com/) (to build the linux packages)
-* wget (used to download the mosquitto source code)
+
+**Note**
+
+The mosquitto source code is downloaded automatically using the ziglang build system. You can manually download the source code yourself by downloading the url defined in the corresponding the build.zig.zon.
 
 ## Building
 
@@ -23,19 +27,7 @@ Cross compile mosquitto using zig build (tested with ziglang 0.14.0).
     cd zig-mosquitto
     ```
 
-2. Checkout/download the mosquitto source code
-
-    ```sh
-    just checkout-mosquitto
-    ```
-
-    Or you can specify the mosquitto version by setting the `VERSION` environment variable.
-
-    ```sh
-    VERSION=2.0.21 just checkout-mosquitto
-    ```
-
-3. Build all targets
+2. Build all targets
 
     ```sh
     just build-all
@@ -44,7 +36,7 @@ Cross compile mosquitto using zig build (tested with ziglang 0.14.0).
     Or specify the `VERSION` environment variable.
 
     ```sh
-    VERSION=2.0.21 just build-all
+    VERSION=2.0.22 just build-all
     ```
 
     If you don't want to include TLS, then you can run:
@@ -53,10 +45,10 @@ Cross compile mosquitto using zig build (tested with ziglang 0.14.0).
     just build-notls-all
     ```
 
-4. Use the build linux packages under the `dist/` folder
+3. Use the build linux packages under the `dist/` folder
 
     ```sh
-    ls -l dist/
+    ls -l build/{VERSION}/dist/
 
     # Using DNF (Fedora, RHEL, AmazonLinux)
     dnf install tedge-mosquitto*.rpm
@@ -97,24 +89,6 @@ just build-notls arm-linux-musleabihf arm7
 just build-notls arm-linux-musleabi arm5
 
 just build-notls riscv64-linux-musl riscv64
-```
-
-```shell
-# Clone: mainly a build.zig file
-$ git clone https://github.com/thin-edge/zig-mosquitto
-$ cd zig-mosquitto
-
-# The build expect a mosquitto sub-directory with mosquitto sources 
-$ wget https://mosquitto.org/files/source/mosquitto-2.0.18.tar.gz
-$ tar -xzf mosquitto-2.0.18.tar.gz
-$ ln -s mosquitto-2.0.18 mosquitto
-
-# Compile with appropriate target
-$ zig build -Doptimize=ReleaseSmall -Dtarget=aarch64-linux-musl
-$ ls -l zig-out/bin/mosquitto
--rwxrwxr-x 1 didier didier 209200 juin  19 22:00 zig-out/bin/mosquitto
-$ file zig-out/bin/mosquitto
-zig-out/bin/mosquitto: ELF 64-bit LSB executable, ARM aarch64, version 1 (SYSV), statically linked, stripped
 ```
 
 ## TODO

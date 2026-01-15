@@ -41,7 +41,7 @@ jobs:
 
       - uses: mlugg/setup-zig@v2
         with:
-          version: "0.14.1"
+          version: "0.15.1"
 
       - uses: extractions/setup-just@v2
         with:
@@ -54,9 +54,6 @@ jobs:
       - run: go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
         name: Install dependencies
 
-      - name: Checkout mosquitto
-        run: just checkout-mosquitto
-
       - name: Build with tls
         run: just build-all
 
@@ -68,7 +65,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION_FULL="${VERSION}-${REVISION}"
-          gh release create "$VERSION_FULL" --generate-notes --title "$VERSION_FULL" --prerelease=${{inputs.prerelease || 'true'}} --draft ./dist/*.*
+          gh release create "$VERSION_FULL" --generate-notes --title "$VERSION_FULL" --prerelease=${{inputs.prerelease || 'true'}} --draft ./build/${{ inputs.version }}/dist/*.*
 
       - name: Publish
         if: env.PUBLISH_TOKEN

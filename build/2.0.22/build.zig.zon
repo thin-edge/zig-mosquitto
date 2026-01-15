@@ -1,0 +1,21 @@
+.{
+    .name = .mosquitto,
+    .version = "2.0.22",
+    .fingerprint = 0xedaa03191382deac,
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "LICENSE",
+        "README.md",
+    },
+    .dependencies = .{
+        .mosquitto_src = .{
+            .url = "https://mosquitto.org/files/source/mosquitto-2.0.22.tar.gz",
+            .hash = "N-V-__8AAFZMQQCBNkzH4l0rLKXlBPKWOVHuadFkfj47fiFw",
+        },
+        .openssl = .{
+            .url = "https://github.com/dzfrias/openssl-zig/archive/refs/heads/main.tar.gz",
+            .hash = "openssl-3.6.0-YymhPrUoAQCKRYLwvQUcGnmdVPu-fBBsq37GSaIx0ZMy",
+        },
+    },
+}
