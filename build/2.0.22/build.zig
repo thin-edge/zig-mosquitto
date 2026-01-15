@@ -1,4 +1,5 @@
 const std = @import("std");
+const zon = @import("build.zig.zon");
 
 pub fn build(b: *std.Build) !void {
     var gpa: std.heap.GeneralPurposeAllocator(.{}) = .{};
@@ -7,7 +8,7 @@ pub fn build(b: *std.Build) !void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
     const with_tls = b.option(bool, "WITH_TLS", "Build mosquitto with TLS") orelse false;
-    const version = b.option([]const u8, "version", "mosquitto version string") orelse "0.0.0";
+    const version = b.option([]const u8, "version", "mosquitto version string") orelse zon.version;
 
     const mosquitto = b.addExecutable(.{
         .name = "mosquitto",

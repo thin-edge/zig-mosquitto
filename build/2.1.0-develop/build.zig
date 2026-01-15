@@ -1,4 +1,5 @@
 const std = @import("std");
+const zon = @import("build.zig.zon");
 
 pub fn build(b: *std.Build) !void {
     var gpa: std.heap.GeneralPurposeAllocator(.{}) = .{};
@@ -8,7 +9,7 @@ pub fn build(b: *std.Build) !void {
     const optimize = b.standardOptimizeOption(.{});
     // NOTE: Force with_tls as building without tls currently fails due to missing ifdef in the mosquitto source code
     const with_tls = b.option(bool, "WITH_TLS", "Build mosquitto with TLS") orelse true;
-    const version = b.option([]const u8, "version", "mosquitto version string") orelse "0.0.0";
+    const version = b.option([]const u8, "version", "mosquitto version string") orelse zon.version;
 
     const mosquitto = b.addExecutable(.{
         .name = "mosquitto",
