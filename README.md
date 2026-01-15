@@ -13,7 +13,10 @@ Cross compile mosquitto using zig build (tested with ziglang 0.15.1).
 * ziglang 0.15.1
 * [just](https://github.com/casey/just) >= 1.15.0
 * [nfpm](https://nfpm.goreleaser.com/) (to build the linux packages)
-* wget (used to download the mosquitto source code)
+
+**Note**
+
+The mosquitto source code is downloaded automatically using the ziglang build system. You can manually download the source code yourself by downloading the url defined in the corresponding the build.zig.zon.
 
 ## Building
 
@@ -24,25 +27,7 @@ Cross compile mosquitto using zig build (tested with ziglang 0.15.1).
     cd zig-mosquitto
     ```
 
-2. Checkout/download the mosquitto source code
-
-    ```sh
-    just checkout-mosquitto
-    ```
-
-    Or you can specify the mosquitto version by setting the `VERSION` environment variable.
-
-    ```sh
-    VERSION=2.0.22 just checkout-mosquitto
-    ```
-
-    Or checkout a specific branch (which is helpful when building against future unreleased versions)
-
-    ```sh
-    just checkout-mosquitto-branch fixes
-    ```
-
-3. Build all targets
+2. Build all targets
 
     ```sh
     just build-all
@@ -60,10 +45,10 @@ Cross compile mosquitto using zig build (tested with ziglang 0.15.1).
     just build-notls-all
     ```
 
-4. Use the build linux packages under the `dist/` folder
+3. Use the build linux packages under the `dist/` folder
 
     ```sh
-    ls -l dist/
+    ls -l build/{VERSION}/dist/
 
     # Using DNF (Fedora, RHEL, AmazonLinux)
     dnf install tedge-mosquitto*.rpm

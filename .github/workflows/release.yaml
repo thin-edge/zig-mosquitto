@@ -54,9 +54,6 @@ jobs:
       - run: go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
         name: Install dependencies
 
-      - name: Checkout mosquitto
-        run: just checkout-mosquitto
-
       - name: Build with tls
         run: just build-all
 

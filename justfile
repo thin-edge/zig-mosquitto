@@ -32,31 +32,10 @@ list-versions:
     @echo
     @ls -c1 build | xargs printf ' * %s\n'
     @echo
-    @echo "Reference one of the above versions to checkout and build mosquitto:"
+    @echo "Reference one of the above versions to build mosquitto:"
     @echo
-    @echo "  just VERSION=2.0.18 checkout-mosquitto"
     @echo "  just VERSION=2.0.18 build"
     @echo
-
-# checkout the mosquitto source code
-checkout-mosquitto version=VERSION:
-    #!/usr/bin/env bash
-    cd {{BUILD_DIR}}
-    wget https://mosquitto.org/files/source/mosquitto-{{version}}.tar.gz -O mosquitto.tar.gz
-    rm -rf mosquitto
-    tar -xzf mosquitto.tar.gz
-    mv mosquitto-{{version}} mosquitto
-    rm -f mosquitto-{{version}}.tar.gz
-
-# checkout the mosquitto source code from a branch
-checkout-mosquitto-branch branch:
-    #!/usr/bin/env bash
-    cd "{{BUILD_DIR}}"
-    wget https://github.com/eclipse-mosquitto/mosquitto/archive/refs/heads/{{branch}}.tar.gz -O mosquitto.tar.gz
-    rm -rf mosquitto
-    tar -xzf mosquitto.tar.gz
-    mv mosquitto-{{branch}} mosquitto
-    rm -f mosquitto-{{branch}}.tar.gz
 
 # build the binary without tls
 build-notls target=TARGET package_arch=PACKAGE_TARGET:

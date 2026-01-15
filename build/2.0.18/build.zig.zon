@@ -9,9 +9,13 @@
         "README.md",
     },
     .dependencies = .{
+        .mosquitto_src = .{
+            .url = "https://mosquitto.org/files/source/mosquitto-2.0.18.tar.gz",
+            .hash = "N-V-__8AADKsQADqbe01XDT7fXb_eOfh3ViJ3j-5EQdSr3WR",
+        },
         .openssl = .{
             .url = "https://github.com/dzfrias/openssl-zig/archive/refs/heads/main.tar.gz",
             .hash = "openssl-3.6.0-YymhPrUoAQCKRYLwvQUcGnmdVPu-fBBsq37GSaIx0ZMy",
-        }
+        },
     }
 }
