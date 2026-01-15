@@ -35,6 +35,12 @@ Cross compile mosquitto using zig build (tested with ziglang 0.15.1).
     VERSION=2.0.22-1 just checkout-mosquitto
     ```
 
+    Or checkout a specific branch (which is helpful when building against future unreleased versions)
+
+    ```sh
+    just checkout-mosquitto-branch fixes
+    ```
+
 3. Build all targets
 
     ```sh

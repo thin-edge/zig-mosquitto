@@ -31,6 +31,14 @@ checkout-mosquitto version=VERSION:
     ln -sf mosquitto-{{version}} mosquitto
     rm -f mosquitto-{{version}}.tar.gz
 
+# checkout the mosquitto source code from a branch
+checkout-mosquitto-branch branch:
+    wget https://github.com/eclipse-mosquitto/mosquitto/archive/refs/heads/{{branch}}.tar.gz -O mosquitto-{{branch}}.tar.gz
+    tar -xzf mosquitto-{{branch}}.tar.gz
+    rm -f mosquitto
+    ln -sf mosquitto-{{branch}} mosquitto
+    rm -f mosquitto-{{branch}}.tar.gz
+
 # build the binary without tls
 build-notls target=TARGET package_arch=PACKAGE_TARGET:
     zig build -Doptimize=ReleaseSmall -Dtarget={{target}} -Dversion={{VERSION}} {{BUILD_OPTIONS}}
