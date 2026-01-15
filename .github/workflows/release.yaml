@@ -68,7 +68,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION_FULL="${VERSION}-${REVISION}"
-          gh release create "$VERSION_FULL" --generate-notes --title "$VERSION_FULL" --prerelease=${{inputs.prerelease || 'true'}} --draft ./dist/*.*
+          gh release create "$VERSION_FULL" --generate-notes --title "$VERSION_FULL" --prerelease=${{inputs.prerelease || 'true'}} --draft ./build/${{ inputs.version }}/dist/*.*
 
       - name: Publish
         if: env.PUBLISH_TOKEN

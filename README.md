@@ -33,7 +33,7 @@ Cross compile mosquitto using zig build (tested with ziglang 0.15.1).
     Or you can specify the mosquitto version by setting the `VERSION` environment variable.
 
     ```sh
-    VERSION=2.0.22-1 just checkout-mosquitto
+    VERSION=2.0.22 just checkout-mosquitto
     ```
 
     Or checkout a specific branch (which is helpful when building against future unreleased versions)
@@ -51,7 +51,7 @@ Cross compile mosquitto using zig build (tested with ziglang 0.15.1).
     Or specify the `VERSION` environment variable.
 
     ```sh
-    VERSION=2.0.22-1 just build-all
+    VERSION=2.0.22 just build-all
     ```
 
     If you don't want to include TLS, then you can run:

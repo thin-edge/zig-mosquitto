@@ -5,3 +5,5 @@ zig-out/
 .zig-cache/
 dist/
 .env
+build/*/packaging
+build/*/zig-out
