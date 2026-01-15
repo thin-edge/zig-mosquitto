@@ -11,6 +11,7 @@ Cross compile mosquitto using zig build (tested with ziglang 0.15.1).
 ## Build Pre-requisites
 
 * ziglang 0.15.1
+* [just](https://github.com/casey/just) >= 1.15.0
 * [nfpm](https://nfpm.goreleaser.com/) (to build the linux packages)
 * wget (used to download the mosquitto source code)
 
