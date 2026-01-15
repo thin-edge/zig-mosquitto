@@ -27,6 +27,7 @@ OUTPUT_DIR := "dist"
 checkout-mosquitto version=VERSION:
     wget https://mosquitto.org/files/source/mosquitto-{{version}}.tar.gz
     tar -xzf mosquitto-{{version}}.tar.gz
+    rm -f mosquitto
     ln -sf mosquitto-{{version}} mosquitto
     rm -f mosquitto-{{version}}.tar.gz
 
