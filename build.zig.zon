@@ -1,6 +1,6 @@
 .{
     .name = .mosquitto,
-    .version = "2.0.18",
+    .version = "2.0.22-1",
     .fingerprint = 0xedaa03191382deac,
     .paths = .{
         "build.zig",
@@ -11,7 +11,7 @@
     .dependencies = .{
         .openssl = .{
             .url = "https://github.com/dzfrias/openssl-zig/archive/refs/heads/main.tar.gz",
-            .hash = "openssl-3.4.0-AAAAAJbeAABDKzRsuNqkIz475RzzA6y5o1R-LoEZumHo",
-        }
-    }
+            .hash = "openssl-3.6.0-YymhPrUoAQCKRYLwvQUcGnmdVPu-fBBsq37GSaIx0ZMy",
+        },
+    },
 }

@@ -4,7 +4,7 @@ set dotenv-load
 PACKAGE_NAME := env("PACKAGE_NAME", "tedge-mosquitto")
 
 # package version
-VERSION := env("VERSION", "2.0.18")
+VERSION := env("VERSION", "2.0.22-1")
 
 # package version release suffix
 REVISION := env("REVISION", "1")
