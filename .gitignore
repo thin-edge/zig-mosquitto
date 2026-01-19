@@ -8,3 +8,4 @@ dist/
 .env
 build/*/packaging
 build/*/zig-out
+/current

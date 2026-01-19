@@ -1,0 +1,184 @@
+# yaml-language-server: $schema=https://goreleaser.com/static/schema.json
+version: 2
+project_name: tedge-mosquitto
+before:
+  hooks:
+    - test -e ./build/{{ .Env.VERSION }}
+    - rm -f ./current
+    - ln -s ./build/{{ .Env.VERSION }} current
+    # fetch the dependencies to reduce race conditions when building multiple targets
+    - sh -c 'cd ./build/{{ .Env.VERSION }} && zig build --fetch=all'
+
+builds:
+  - &build-default
+    id: mosquitto
+    builder: zig
+    binary: mosquitto
+    targets:
+      - x86_64-linux-musl
+      - aarch64-linux-musl
+      - arm-linux-musleabihf
+      - riscv64-linux-musl
+    dir: ./current
+    tool: zig
+    flags:
+      - --release=small
+      - -Doptimize=ReleaseSmall
+      - -DWITH_TLS={{ eq (envOrDefault "WITH_TLS" "true") "true" }}
+
+  - &build-armv6
+    # armv6
+    id: mosquitto-armv6
+    <<: *build-default
+    targets:
+      - arm-linux-musleabi
+    flags:
+      - --release=small
+      - -Doptimize=ReleaseSmall
+      - -DWITH_TLS={{ eq (envOrDefault "WITH_TLS" "true") "true" }}
+      - -Dcpu=arm1176jzf_s
+
+  #
+  # UPX'd binaries
+  #
+  - #
+    id: mosquitto-upx
+    <<: *build-default
+
+  - #
+    id: mosquitto-upx-armv6
+    <<: *build-armv6
+
+archives:
+  - id: mosquitto-archive
+    ids:
+      - mosquitto
+    formats:
+      - tar.gz
+    name_template: '{{ envOrDefault "PACKAGE_NAME" .ProjectName }}_{{ .Env.VERSION }}_{{ .Os }}_{{ .Arch }}{{ with .Arm }}v{{ .Arm }}{{ end }}{{ with .Mips }}_{{ . }}{{ end }}{{ if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}'
+  
+  - id: mosquitto-archive-armv6
+    ids:
+      - mosquitto-armv6
+    formats:
+      - tar.gz
+    name_template: '{{ envOrDefault "PACKAGE_NAME" .ProjectName }}_{{ .Env.VERSION }}_{{ .Os }}_{{ .Arch }}{{ with .Arm }}v{{ .Arm }}{{ end }}v6{{ with .Mips }}_{{ . }}{{ end }}{{ if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}'
+
+  # upx'd archives
+  - id: mosquitto-archive-upx
+    ids:
+      - mosquitto-upx
+    formats:
+      - tar.gz
+    name_template: '{{ envOrDefault "PACKAGE_NAME" .ProjectName }}-upx_{{ .Env.VERSION }}_{{ .Os }}_{{ .Arch }}{{ with .Arm }}v{{ .Arm }}{{ end }}{{ with .Mips }}_{{ . }}{{ end }}{{ if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}'
+  
+  - id: mosquitto-archive-upx-armv6
+    ids:
+      - mosquitto-upx-armv6
+    formats:
+      - tar.gz
+    name_template: '{{ envOrDefault "PACKAGE_NAME" .ProjectName }}-upx_{{ .Env.VERSION }}_{{ .Os }}_{{ .Arch }}{{ with .Arm }}v{{ .Arm }}{{ end }}v6{{ with .Mips }}_{{ . }}{{ end }}{{ if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}'
+
+nfpms:
+  # note that this is an array of nfpm configs
+  - &linux-package-defaults
+    # ID of the nfpm config, must be unique.
+    id: mosquitto-linux-packages
+    ids:
+      - mosquitto
+
+    package_name: '{{ envOrDefault "PACKAGE_NAME" .ProjectName }}'
+    file_name_template: '{{ .PackageName }}_{{ .Env.VERSION }}_{{ .Os }}_{{ .Arch }}{{ with .Arm }}v{{ . }}{{ end }}{{ with .Mips }}_{{ . }}{{ end }}{{ if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}'
+    vendor: thin-edge.io
+    homepage: https://thin-edge.io
+    maintainer: thin-edge.io
+    license: BSD
+    description: |
+      An Open Source MQTT v3.1/v3.1.1 Broker
+
+      Mosquitto is an open source message broker that implements the MQ Telemetry
+      Transport protocol version 3.1 and 3.1.1 MQTT provides a lightweight method
+      of carrying out messaging using a publish/subscribe model. This makes it
+      suitable for "machine to machine" messaging such as with low power sensors
+      or mobile devices such as phones, embedded computers or micro-controllers
+      like the Arduino.
+
+    formats:
+      - apk
+      - deb
+      - rpm
+      - termux.deb
+      - archlinux
+      - ipk
+
+    provides:
+      - mosquitto
+
+    replaces:
+      - mosquitto
+
+    # Path that the binaries should be installed.
+    bindir: /usr/bin
+    version_metadata: git
+    release: '{{ envOrDefault "REVISION" "1"}}'
+    section: default
+    priority: extra
+
+    # Contents to add to the package.
+    # GoReleaser will automatically add the binaries.
+    contents:
+      - src: packaging/conf/certs/README
+        dst: /etc/mosquitto/certs/README
+        type: config
+
+      - src: packaging/conf/ca_certificates/README
+        dst: /etc/mosquitto/ca_certificates/README
+        type: config
+
+      - src: packaging/conf/mosquitto.conf
+        dst: /etc/mosquitto/mosquitto.conf
+        type: config
+
+      - src: packaging/conf/conf.d/README
+        dst: /etc/mosquitto/conf.d/README
+        type: config
+
+      # systemd definition
+      - src: packaging/services/systemd/mosquitto.service
+        dst: /usr/lib/systemd/system/mosquitto.service
+        file_info:
+          mode: 0644
+
+    scripts:
+      preinstall: ./packaging/scripts/preinstall.sh
+      postinstall: ./packaging/scripts/postinstall.sh
+      preremove: ./packaging/scripts/preremove.sh
+      postremove: ./packaging/scripts/postremove.sh
+  
+  - #
+    # build linux packages due to armhf and arm are both named "arm"
+    <<: *linux-package-defaults
+    id: mosquitto-linux-packages-arvm6
+    ids:
+      - mosquitto-armv6
+    file_name_template: '{{ .PackageName }}_{{ .Env.VERSION }}_{{ .Os }}_{{ .Arch }}{{ with .Arm }}v{{ . }}{{ end }}v6{{ with .Mips }}_{{ . }}{{ end }}{{ if not (eq .Amd64 "v1") }}{{ .Amd64 }}{{ end }}'
+
+upx:
+  - # Whether to enable it or not.
+    enabled: true
+
+    # Filter by build ID.
+    ids: [mosquitto-upx, mosquitto-upx-armv6]
+
+    # Filter by GOOS.
+    goos: [linux]
+
+    # Compress argument.
+    # Valid options are from '1' (faster) to '9' (better), and 'best'.
+    compress: best
+
+    # Whether to try LZMA (slower).
+    lzma: true
+
+    # Whether to try all methods and filters (slow).
+    brute: true

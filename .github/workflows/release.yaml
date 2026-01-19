@@ -47,25 +47,24 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/setup-go@v5
+      - name: Install GoReleaser
+        uses: goreleaser/goreleaser-action@v6
         with:
-          go-version: 'stable'
-          cache: false
-      - run: go install github.com/goreleaser/nfpm/v2/cmd/nfpm@latest
-        name: Install dependencies
+          version: '~> v2'
+          install-only: true
 
       - name: Build with tls
-        run: just build-all
+        run: just build
 
       - name: Build without tls
-        run: just build-notls-all
+        run: just build-notls
 
       - name: Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION_FULL="${VERSION}-${REVISION}"
-          gh release create "$VERSION_FULL" --generate-notes --title "$VERSION_FULL" --prerelease=${{inputs.prerelease || 'true'}} --draft ./build/${{ inputs.version }}/dist/*.*
+          gh release create "$VERSION_FULL" --generate-notes --title "$VERSION_FULL" --prerelease=${{inputs.prerelease || 'true'}} --draft ./dist/*.*
 
       - name: Publish
         if: env.PUBLISH_TOKEN
