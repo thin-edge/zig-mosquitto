@@ -25,7 +25,6 @@ builds:
       - --release=small
       - -Doptimize=ReleaseSmall
       - -DWITH_TLS={{ eq (envOrDefault "WITH_TLS" "true") "true" }}
-
   - &build-armv6
     # armv6
     id: mosquitto-armv6
@@ -37,7 +36,6 @@ builds:
       - -Doptimize=ReleaseSmall
       - -DWITH_TLS={{ eq (envOrDefault "WITH_TLS" "true") "true" }}
       - -Dcpu=arm1176jzf_s
-
   #
   # UPX'd binaries
   #

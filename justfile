@@ -26,9 +26,11 @@ list-versions:
     @echo "  just VERSION=2.0.18 build"
     @echo
 
+# Note: use --parallelism 1 due to a problem when running builds in parallel, most likely
+# caused by the openssl dependency
 [private]
 _build *ARGS='':
-    VERSION={{VERSION}} REVISION={{REVISION}} WITH_TLS={{WITH_TLS}} PACKAGE_NAME="{{PACKAGE_NAME}}" goreleaser release --auto-snapshot --skip=announce,publish,validate --clean {{ARGS}}
+    VERSION={{VERSION}} REVISION={{REVISION}} WITH_TLS={{WITH_TLS}} PACKAGE_NAME="{{PACKAGE_NAME}}" goreleaser release --parallelism 1 --auto-snapshot --skip=announce,publish,validate --clean {{ARGS}}
 
 # build the binary with tls enabled (default)
 build *ARGS='':
