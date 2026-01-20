@@ -10,8 +10,8 @@
     },
     .dependencies = .{
         .mosquitto_src = .{
-            .url = "https://github.com/eclipse-mosquitto/mosquitto/archive/refs/heads/develop.tar.gz",
-            .hash = "N-V-__8AAMxQigB8Afzr8oIL9Ljuf5OSO37L58pLHNXwvdxJ",
+            .url = "https://github.com/eclipse-mosquitto/mosquitto/archive/79a13f6e107c2f3fed8bf34a4c0f1b452696474c.tar.gz",
+            .hash = "N-V-__8AAIptigAW2eBQ9PXDQwxcxQfzB2RuDhQqvp7f7xnw",
         },
         .cjson = .{
             .url = "https://github.com/DaveGamble/cJSON/archive/refs/tags/v1.7.18.tar.gz",
