@@ -12,7 +12,8 @@ Cross compile mosquitto using zig build (tested with ziglang 0.15.1).
 
 * ziglang 0.15.1
 * [just](https://github.com/casey/just) >= 1.15.0
-* [nfpm](https://nfpm.goreleaser.com/) (to build the linux packages)
+* [goreleaser](https://github.com/goreleaser/goreleaser) >= 2.13 (to coordinate the build and packaging)
+* UPX (optional: used to provide self-extracting binaries for devices with very limited file storage)
 
 **Note**
 
@@ -30,25 +31,25 @@ The mosquitto source code is downloaded automatically using the ziglang build sy
 2. Build all targets
 
     ```sh
-    just build-all
+    just build
     ```
 
     Or specify the `VERSION` environment variable.
 
     ```sh
-    VERSION=2.0.22 just build-all
+    VERSION=2.0.22 just build
     ```
 
     If you don't want to include TLS, then you can run:
 
     ```sh
-    just build-notls-all
+    just build-notls
     ```
 
 3. Use the build linux packages under the `dist/` folder
 
     ```sh
-    ls -l build/{VERSION}/dist/
+    ls -l dist/
 
     # Using DNF (Fedora, RHEL, AmazonLinux)
     dnf install tedge-mosquitto*.rpm
@@ -57,38 +58,13 @@ The mosquitto source code is downloaded automatically using the ziglang build sy
     apt-get install tedge-mosquitto*.deb
     ```
 
-### Building a single target
+### Building manually
 
-If you don't want to build for all of the targets, then you can build using
-
-The compiled `mosquitto` binary will be created under `./zig-out/mosquitto`, however it will only be the binary from the last build.
-
-**With TLS**
+If you want to experiment with building the binary manually using zig, then use the following commands to build a specific version of mosquitto.
 
 ```sh
-just build x86_64-linux-musl amd64
-
-just build aarch64-linux-musl arm64
-
-just build arm-linux-musleabihf arm7
-
-just build arm-linux-musleabi arm5
-
-just build riscv64-linux-musl riscv64
-```
-
-**Without TLS**
-
-```sh
-just build-notls x86_64-linux-musl amd64
-
-just build-notls aarch64-linux-musl arm64
-
-just build-notls arm-linux-musleabihf arm7
-
-just build-notls arm-linux-musleabi arm5
-
-just build-notls riscv64-linux-musl riscv64
+cd build/{VERSION}
+zig build --release=small -Doptimize=ReleaseSmall -DWITH_TLS=true
 ```
 
 ## TODO

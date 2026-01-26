@@ -9,22 +9,11 @@ VERSION := env("VERSION", "2.0.22")
 # package version release suffix
 REVISION := env("REVISION", "1")
 
-# build directory for the specific mosquitto version that is being built
-BUILD_DIR := "build/" + VERSION
-
-# ziglang build options to control different user options
-BUILD_OPTIONS := env("BUILD_OPTIONS", "")
-
-# ziglang target triple
-TARGET := env("TARGET", "x86_64-linux-musl")
-
-# nfpm package architecture, this differs from the ziglang target triple
-# as packaging generally have their own naming convention, so nfpm needs
-# to know how to translate these names to deb, rpm, apk etc.
-PACKAGE_TARGET := env("TARGET", "amd64")
-
 # output directory for the linux packages
 OUTPUT_DIR := "dist"
+
+# build mosquitto with tls. Accepts either 'true' or 'false'
+WITH_TLS := env("WITH_TLS", "true")
 
 # list supported mosquitto versions
 list-versions:
@@ -37,49 +26,32 @@ list-versions:
     @echo "  just VERSION=2.0.18 build"
     @echo
 
-# build the binary without tls
-build-notls target=TARGET package_arch=PACKAGE_TARGET:
-    #!/usr/bin/env bash
-    cd "{{BUILD_DIR}}"
-    rm -f packaging
-    ln -s ../../packaging packaging
-    zig build -Doptimize=ReleaseSmall -Dtarget={{target}} -Dversion={{VERSION}} {{BUILD_OPTIONS}}
-    mkdir -p "{{OUTPUT_DIR}}"
-    PACKAGE_NAME="{{PACKAGE_NAME}}-notls" REVISION={{REVISION}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p rpm -f ./packaging/nfpm.yaml -t {{OUTPUT_DIR}}/
-    PACKAGE_NAME="{{PACKAGE_NAME}}-notls" REVISION={{REVISION}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p apk -f ./packaging/nfpm.yaml -t {{OUTPUT_DIR}}/
-    PACKAGE_NAME="{{PACKAGE_NAME}}-notls" REVISION={{REVISION}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p deb -f ./packaging/nfpm.yaml -t {{OUTPUT_DIR}}/
+# Note: use --parallelism 1 due to a problem when running builds in parallel, most likely
+# caused by the openssl dependency
+[private]
+_build *ARGS='':
+    VERSION={{VERSION}} REVISION={{REVISION}} WITH_TLS={{WITH_TLS}} PACKAGE_NAME="{{PACKAGE_NAME}}" goreleaser release --parallelism 1 --auto-snapshot --skip=announce,publish,validate --clean {{ARGS}}
 
 # build the binary with tls enabled (default)
-build target=TARGET package_arch=PACKAGE_TARGET:
-    #!/usr/bin/env bash
-    cd "{{BUILD_DIR}}"
-    rm -f packaging
-    ln -s ../../packaging packaging
-    mkdir -p "{{OUTPUT_DIR}}"
-    zig build -Doptimize=ReleaseSmall -Dtarget={{target}} -Dversion={{VERSION}} -DWITH_TLS=true {{BUILD_OPTIONS}}
-    PACKAGE_NAME="{{PACKAGE_NAME}}" REVISION={{REVISION}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p rpm -f ./packaging/nfpm.yaml -t {{OUTPUT_DIR}}/
-    PACKAGE_NAME="{{PACKAGE_NAME}}" REVISION={{REVISION}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p apk -f ./packaging/nfpm.yaml -t {{OUTPUT_DIR}}/
-    PACKAGE_NAME="{{PACKAGE_NAME}}" REVISION={{REVISION}} VERSION={{VERSION}} ARCH={{package_arch}} nfpm package -p deb -f ./packaging/nfpm.yaml -t {{OUTPUT_DIR}}/
+build *ARGS='':
+    WITH_TLS=true just _build
 
-# build all targets without tls
-build-notls-all:
-    just build-notls x86_64-linux-musl amd64
-    just build-notls aarch64-linux-musl arm64
-    just build-notls arm-linux-musleabihf arm7
-    just build-notls arm-linux-musleabi arm5
-    just build-notls riscv64-linux-musl riscv64
+# build the binary without tls enabled
+build-notls:
+    WITH_TLS=false just PACKAGE_NAME="{{PACKAGE_NAME}}-notls" _build
 
-# build all targets with tls enabled
-build-all:
-    just build x86_64-linux-musl amd64
-    just build aarch64-linux-musl arm64
-    just build arm-linux-musleabihf arm7
-    just build arm-linux-musleabi arm5
-    just build riscv64-linux-musl riscv64
+# build using native zig command (to help with debugging)
+build-native *ARGS='':
+    cd build/{{VERSION}} && zig build --release=small -Doptimize=ReleaseSmall -DWITH_TLS={{WITH_TLS}} {{ARGS}}
+    @echo
+    @echo "Build OK. Execute the binary using"
+    @echo ""
+    @echo "  ./build/{{VERSION}}/zig-out/bin/mosquitto"
+    @echo
 
 # clean the distribution folders
 clean:
-    rm -rf {{BUILD_DIR}}/{{OUTPUT_DIR}}
+    rm -rf {{OUTPUT_DIR}}
 
 # Publish packages
 publish *args="":
