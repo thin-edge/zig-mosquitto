@@ -141,11 +141,24 @@ nfpms:
         dst: /etc/mosquitto/conf.d/README
         type: config
 
+      - dst: /var/lib/mosquitto
+        type: dir
+        file_info:
+          owner: mosquitto
+          group: mosquitto
+          mode: 700
+
       # systemd definition
       - src: packaging/services/systemd/mosquitto.service
         dst: /usr/lib/systemd/system/mosquitto.service
         file_info:
           mode: 0644
+
+      # sysvinit definition
+      - src: packaging/services/sysvinit/mosquitto
+        dst: /usr/lib/tedge-services/sysvinit/mosquitto
+        file_info:
+          mode: 0755
 
     scripts:
       preinstall: ./packaging/scripts/preinstall.sh
