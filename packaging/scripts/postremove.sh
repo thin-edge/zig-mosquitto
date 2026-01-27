@@ -67,6 +67,10 @@ purge_var_log() {
     fi
 }
 
+remove_service() {
+    rm -f /etc/init.d/mosquitto
+}
+
 
 case "$1" in
     purge)
@@ -74,5 +78,6 @@ case "$1" in
         remove_group "mosquitto"
         purge_configs
         purge_var_log
+        remove_service
     ;;
 esac

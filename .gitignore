@@ -1,6 +1,7 @@
 mosquitto
 mosquitto*.tar.gz
 mosquitto*/
+!packaging/services/sysvinit/mosquitto
 cjson/
 zig-out/
 .zig-cache/
