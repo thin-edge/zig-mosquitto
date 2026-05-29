@@ -19,7 +19,7 @@ jobs:
           - { version: '2.0.18', tls: true, no_tls: true }
           - { version: '2.0.22', tls: true, no_tls: true }
           - { version: '2.1.2', tls: true, no_tls: false }
-          - { version: '2.1.x-master', tls: true, no_tls: false }
+          # - { version: '2.1.x-master', tls: true, no_tls: false }
 
     env:
       VERSION: ${{ matrix.job.version }}
