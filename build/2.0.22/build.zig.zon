@@ -14,7 +14,7 @@
             .hash = "N-V-__8AAFZMQQCBNkzH4l0rLKXlBPKWOVHuadFkfj47fiFw",
         },
         .openssl = .{
-            .url = "https://github.com/dzfrias/openssl-zig/archive/refs/heads/main.tar.gz",
+            .url = "https://github.com/dzfrias/openssl-zig/archive/8f9dd2791a5ec743c85e57fb1ef9c59e99c5d222.tar.gz",
             .hash = "openssl-3.6.0-YymhPrUoAQCKRYLwvQUcGnmdVPu-fBBsq37GSaIx0ZMy",
         },
     },
