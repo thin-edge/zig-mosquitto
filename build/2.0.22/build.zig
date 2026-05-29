@@ -2,7 +2,7 @@ const std = @import("std");
 const zon = @import("build.zig.zon");
 
 pub fn build(b: *std.Build) !void {
-    var gpa: std.heap.GeneralPurposeAllocator(.{}) = .{};
+    var gpa: std.heap.DebugAllocator(.{}) = .{};
     const alloc = gpa.allocator();
 
     const target = b.standardTargetOptions(.{});
@@ -19,22 +19,21 @@ pub fn build(b: *std.Build) !void {
     });
 
     const mosquitto_dep = b.dependency("mosquitto_src", .{});
-    mosquitto.addIncludePath(mosquitto_dep.path(""));
-    mosquitto.addIncludePath(mosquitto_dep.path("src"));
-    mosquitto.addIncludePath(mosquitto_dep.path("lib"));
-    mosquitto.addIncludePath(mosquitto_dep.path("deps"));
-    mosquitto.addIncludePath(mosquitto_dep.path("include"));
+    mosquitto.root_module.addIncludePath(mosquitto_dep.path(""));
+    mosquitto.root_module.addIncludePath(mosquitto_dep.path("src"));
+    mosquitto.root_module.addIncludePath(mosquitto_dep.path("lib"));
+    mosquitto.root_module.addIncludePath(mosquitto_dep.path("deps"));
+    mosquitto.root_module.addIncludePath(mosquitto_dep.path("include"));
 
     // Enable openssl
     if (with_tls) {
         const openssl = b.dependency("openssl", .{ .target = target, .optimize = optimize });
         const libssl = openssl.artifact("ssl");
         const libcrypto = openssl.artifact("crypto");
-        _ = for (libcrypto.root_module.include_dirs.items) |include_dir| {
-            try mosquitto.root_module.include_dirs.append(b.allocator, include_dir);
-        };
         mosquitto.root_module.linkLibrary(libssl);
         mosquitto.root_module.linkLibrary(libcrypto);
+        mosquitto.root_module.addIncludePath(libssl.getEmittedIncludeTree());
+        mosquitto.root_module.addIncludePath(libcrypto.getEmittedIncludeTree());
     }
 
     // note: Ideally the source code files should be sorted and the unused files should
@@ -142,31 +141,31 @@ pub fn build(b: *std.Build) !void {
     };
 
     // construct build arguments
-    var mosquitto_flags = std.array_list.Managed([]const u8).init(alloc);
-    defer mosquitto_flags.deinit();
+    var mosquitto_flags: std.ArrayList([]const u8) = .empty;
+    defer mosquitto_flags.deinit(alloc);
 
     // optional flags
     if (with_tls) {
-        try mosquitto_flags.append("-DWITH_TLS");
+        try mosquitto_flags.append(alloc, "-DWITH_TLS");
     }
 
     // common flags
-    try mosquitto_flags.append("-DWITH_BRIDGE");
-    try mosquitto_flags.append("-DWITH_BROKER");
-    try mosquitto_flags.append("-DWITH_PERSISTENCE");
+    try mosquitto_flags.append(alloc, "-DWITH_BRIDGE");
+    try mosquitto_flags.append(alloc, "-DWITH_BROKER");
+    try mosquitto_flags.append(alloc, "-DWITH_PERSISTENCE");
 
     // version
     const version_flag = try std.fmt.allocPrint(alloc, "-DVERSION=\"{s}\"", .{version});
     defer alloc.free(version_flag);
-    try mosquitto_flags.append(version_flag);
+    try mosquitto_flags.append(alloc, version_flag);
 
-    try mosquitto_flags.append("-Wall");
-    try mosquitto_flags.append("-W");
+    try mosquitto_flags.append(alloc, "-Wall");
+    try mosquitto_flags.append(alloc, "-W");
 
     for (mosquitto_sources) |src| {
-        mosquitto.addCSourceFile(.{ .file = mosquitto_dep.path(src), .flags = mosquitto_flags.items });
+        mosquitto.root_module.addCSourceFile(.{ .file = mosquitto_dep.path(src), .flags = mosquitto_flags.items });
     }
-    mosquitto.linkLibC();
+    mosquitto.root_module.link_libc = true;
 
     b.installArtifact(mosquitto);
 }

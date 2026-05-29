@@ -2,7 +2,7 @@ const std = @import("std");
 const zon = @import("build.zig.zon");
 
 pub fn build(b: *std.Build) !void {
-    var gpa: std.heap.GeneralPurposeAllocator(.{}) = .{};
+    var gpa: std.heap.DebugAllocator(.{}) = .{};
     const alloc = gpa.allocator();
 
     const target = b.standardTargetOptions(.{});
@@ -20,13 +20,13 @@ pub fn build(b: *std.Build) !void {
 
     const mosquitto_dep = b.dependency("mosquitto_src", .{});
 
-    mosquitto.addIncludePath(mosquitto_dep.path(""));
-    mosquitto.addIncludePath(mosquitto_dep.path("src"));
-    mosquitto.addIncludePath(mosquitto_dep.path("common"));
-    mosquitto.addIncludePath(mosquitto_dep.path("lib"));
-    mosquitto.addIncludePath(mosquitto_dep.path("libcommon"));
-    mosquitto.addIncludePath(mosquitto_dep.path("deps"));
-    mosquitto.addIncludePath(mosquitto_dep.path("include"));
+    mosquitto.root_module.addIncludePath(mosquitto_dep.path(""));
+    mosquitto.root_module.addIncludePath(mosquitto_dep.path("src"));
+    mosquitto.root_module.addIncludePath(mosquitto_dep.path("common"));
+    mosquitto.root_module.addIncludePath(mosquitto_dep.path("lib"));
+    mosquitto.root_module.addIncludePath(mosquitto_dep.path("libcommon"));
+    mosquitto.root_module.addIncludePath(mosquitto_dep.path("deps"));
+    mosquitto.root_module.addIncludePath(mosquitto_dep.path("include"));
 
     const cjson_dep = b.dependency("cjson", .{});
     const mkdir_cjson = b.addSystemCommand(&[_][]const u8{ "mkdir", "-p", "cjson" });
@@ -35,26 +35,25 @@ pub fn build(b: *std.Build) !void {
     copy_cjson.addArg("cjson/cJSON.h");
     copy_cjson.step.dependOn(&mkdir_cjson.step);
     mosquitto.step.dependOn(&copy_cjson.step);
-    mosquitto.addIncludePath(b.path("."));
-    mosquitto.addCSourceFile(.{ .file = cjson_dep.path("cJSON.c"), .flags = &.{} });
+    mosquitto.root_module.addIncludePath(b.path("."));
+    mosquitto.root_module.addCSourceFile(.{ .file = cjson_dep.path("cJSON.c"), .flags = &.{} });
 
     const sqlite_dep = b.dependency("sqlite", .{});
-    mosquitto.addIncludePath(sqlite_dep.path("."));
-    mosquitto.addCSourceFile(.{ .file = sqlite_dep.path("sqlite3.c"), .flags = &.{} });
+    mosquitto.root_module.addIncludePath(sqlite_dep.path("."));
+    mosquitto.root_module.addCSourceFile(.{ .file = sqlite_dep.path("sqlite3.c"), .flags = &.{} });
 
     const microhttpd = b.dependency("microhttpd", .{});
-    mosquitto.addIncludePath(microhttpd.path("src/include"));
+    mosquitto.root_module.addIncludePath(microhttpd.path("src/include"));
 
     // Enable openssl
     if (with_tls) {
         const openssl = b.dependency("openssl", .{ .target = target, .optimize = optimize });
         const libssl = openssl.artifact("ssl");
         const libcrypto = openssl.artifact("crypto");
-        _ = for (libcrypto.root_module.include_dirs.items) |include_dir| {
-            try mosquitto.root_module.include_dirs.append(b.allocator, include_dir);
-        };
         mosquitto.root_module.linkLibrary(libssl);
         mosquitto.root_module.linkLibrary(libcrypto);
+        mosquitto.root_module.addIncludePath(libssl.getEmittedIncludeTree());
+        mosquitto.root_module.addIncludePath(libcrypto.getEmittedIncludeTree());
     }
 
     // note: Ideally the source code files should be sorted and the unused files should
@@ -184,33 +183,33 @@ pub fn build(b: *std.Build) !void {
     };
 
     // construct build arguments
-    var mosquitto_flags = std.array_list.Managed([]const u8).init(alloc);
-    defer mosquitto_flags.deinit();
+    var mosquitto_flags: std.ArrayList([]const u8) = .empty;
+    defer mosquitto_flags.deinit(alloc);
 
     // optional flags
     if (with_tls) {
-        try mosquitto_flags.append("-DWITH_TLS");
+        try mosquitto_flags.append(alloc, "-DWITH_TLS");
     }
 
     // common flags
-    try mosquitto_flags.append("-DWITH_BRIDGE");
-    try mosquitto_flags.append("-DWITH_BROKER");
-    try mosquitto_flags.append("-DWITH_PERSISTENCE");
-    // try mosquitto_flags.append("-DWITH_SQLITE");
-    // try mosquitto_flags.append("-DWITH_HTTP_API");
+    try mosquitto_flags.append(alloc, "-DWITH_BRIDGE");
+    try mosquitto_flags.append(alloc, "-DWITH_BROKER");
+    try mosquitto_flags.append(alloc, "-DWITH_PERSISTENCE");
+    // try mosquitto_flags.append(alloc, "-DWITH_SQLITE");
+    // try mosquitto_flags.append(alloc, "-DWITH_HTTP_API");
 
     // version
     const version_flag = try std.fmt.allocPrint(alloc, "-DVERSION=\"{s}\"", .{version});
     defer alloc.free(version_flag);
-    try mosquitto_flags.append(version_flag);
+    try mosquitto_flags.append(alloc, version_flag);
 
-    try mosquitto_flags.append("-Wall");
-    try mosquitto_flags.append("-W");
+    try mosquitto_flags.append(alloc, "-Wall");
+    try mosquitto_flags.append(alloc, "-W");
 
     for (mosquitto_sources) |src| {
-        mosquitto.addCSourceFile(.{ .file = mosquitto_dep.path(src), .flags = mosquitto_flags.items });
+        mosquitto.root_module.addCSourceFile(.{ .file = mosquitto_dep.path(src), .flags = mosquitto_flags.items });
     }
-    mosquitto.linkLibC();
+    mosquitto.root_module.link_libc = true;
 
     b.installArtifact(mosquitto);
 }

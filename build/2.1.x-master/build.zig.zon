@@ -26,8 +26,8 @@
             .hash = "N-V-__8AALNmqgBz73I7J8GlQS_kCPTRgxS0rm8gXcEM8Evk",
         },
         .openssl = .{
-            .url = "https://github.com/dzfrias/openssl-zig/archive/8f9dd2791a5ec743c85e57fb1ef9c59e99c5d222.tar.gz",
-            .hash = "openssl-3.6.0-YymhPrUoAQCKRYLwvQUcGnmdVPu-fBBsq37GSaIx0ZMy",
+            .url = "https://github.com/dzfrias/openssl-zig/archive/303ff47bad5d3b4d55d5a85a7ca5053abba3e307.tar.gz",
+            .hash = "openssl-3.6.0-YymhPkUpAQBvGMYJLeoNCns4esnK4ysEzokvFoypRQv1",
         },
     },
 }
