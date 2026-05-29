@@ -9,4 +9,5 @@ dist/
 .env
 build/*/packaging
 build/*/zig-out
+build/*/zig-pkg
 /current
