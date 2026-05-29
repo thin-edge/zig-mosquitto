@@ -1,6 +1,6 @@
 .{
     .name = .mosquitto,
-    .version = "2.1.0-develop",
+    .version = "2.1.1-master",
     .fingerprint = 0xedaa03191382deac,
     .paths = .{
         "build.zig",
@@ -10,8 +10,8 @@
     },
     .dependencies = .{
         .mosquitto_src = .{
-            .url = "https://github.com/eclipse-mosquitto/mosquitto/archive/79a13f6e107c2f3fed8bf34a4c0f1b452696474c.tar.gz",
-            .hash = "N-V-__8AAIptigAW2eBQ9PXDQwxcxQfzB2RuDhQqvp7f7xnw",
+            .url = "https://github.com/eclipse-mosquitto/mosquitto/archive/aa4bfa68ab7ee3679df4fa55386ecbbd7a8e6037.tar.gz",
+            .hash = "N-V-__8AAC_zigAecz9f_FmNCzcXPiYRweH2739wNS7CmtAC",
         },
         .cjson = .{
             .url = "https://github.com/DaveGamble/cJSON/archive/refs/tags/v1.7.18.tar.gz",
@@ -26,7 +26,7 @@
             .hash = "N-V-__8AALNmqgBz73I7J8GlQS_kCPTRgxS0rm8gXcEM8Evk",
         },
         .openssl = .{
-            .url = "https://github.com/dzfrias/openssl-zig/archive/refs/heads/main.tar.gz",
+            .url = "https://github.com/dzfrias/openssl-zig/archive/8f9dd2791a5ec743c85e57fb1ef9c59e99c5d222.tar.gz",
             .hash = "openssl-3.6.0-YymhPrUoAQCKRYLwvQUcGnmdVPu-fBBsq37GSaIx0ZMy",
         },
     },

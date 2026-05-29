@@ -7,7 +7,6 @@ pub fn build(b: *std.Build) !void {
 
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
-    // NOTE: Force with_tls as building without tls currently fails due to missing ifdef in the mosquitto source code
     const with_tls = b.option(bool, "WITH_TLS", "Build mosquitto with TLS") orelse true;
     const version = b.option([]const u8, "version", "mosquitto version string") orelse zon.version;
 
@@ -20,6 +19,7 @@ pub fn build(b: *std.Build) !void {
     });
 
     const mosquitto_dep = b.dependency("mosquitto_src", .{});
+
     mosquitto.addIncludePath(mosquitto_dep.path(""));
     mosquitto.addIncludePath(mosquitto_dep.path("src"));
     mosquitto.addIncludePath(mosquitto_dep.path("common"));
