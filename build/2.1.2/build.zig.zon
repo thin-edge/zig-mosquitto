@@ -1,0 +1,33 @@
+.{
+    .name = .mosquitto,
+    .version = "2.1.2",
+    .fingerprint = 0xedaa03191382deac,
+    .paths = .{
+        "build.zig",
+        "build.zig.zon",
+        "LICENSE",
+        "README.md",
+    },
+    .dependencies = .{
+        .mosquitto_src = .{
+            .url = "https://mosquitto.org/files/source/mosquitto-2.1.2.tar.gz",
+            .hash = "N-V-__8AALOujwBDeiGVxIdyfIjDCc9unXVCJ-c4WqmV1W0f",
+        },
+        .cjson = .{
+            .url = "https://github.com/DaveGamble/cJSON/archive/refs/tags/v1.7.18.tar.gz",
+            .hash = "N-V-__8AAEtUEwCjxN-pP2y-8gqgzBd8fevALO1YhSDa1KtX",
+        },
+        .microhttpd = .{
+            .url = "https://ftp.gnu.org/gnu/libmicrohttpd/libmicrohttpd-1.0.2.tar.gz",
+            .hash = "N-V-__8AAFovswBPTQ0MmfBG-glcX_wDwfmfX7WJI_1LZGaf",
+        },
+        .sqlite = .{
+            .url = "https://sqlite.org/2026/sqlite-amalgamation-3510200.zip",
+            .hash = "N-V-__8AALNmqgBz73I7J8GlQS_kCPTRgxS0rm8gXcEM8Evk",
+        },
+        .openssl = .{
+            .url = "https://github.com/dzfrias/openssl-zig/archive/8f9dd2791a5ec743c85e57fb1ef9c59e99c5d222.tar.gz",
+            .hash = "openssl-3.6.0-YymhPrUoAQCKRYLwvQUcGnmdVPu-fBBsq37GSaIx0ZMy",
+        },
+    },
+}
