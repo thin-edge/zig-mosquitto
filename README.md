@@ -12,7 +12,7 @@ Cross compile mosquitto using zig build (tested with ziglang 0.15.1).
 
 * ziglang 0.15.1
 * [just](https://github.com/casey/just) >= 1.15.0
-* [goreleaser](https://github.com/goreleaser/goreleaser) >= 2.13 (to coordinate the build and packaging)
+* [goreleaser](https://github.com/goreleaser/goreleaser) >= 2.15 (to coordinate the build and packaging)
 * UPX (optional: used to provide self-extracting binaries for devices with very limited file storage)
 
 **Note**
@@ -37,13 +37,13 @@ The mosquitto source code is downloaded automatically using the ziglang build sy
     Or specify the `VERSION` environment variable.
 
     ```sh
-    VERSION=2.0.22 just build
+    just VERSION=2.0.22 build
     ```
 
     If you don't want to include TLS, then you can run:
 
     ```sh
-    just build-notls
+    just VERSION=2.0.22 WITH_TLS=false build
     ```
 
 3. Use the build linux packages under the `dist/` folder
