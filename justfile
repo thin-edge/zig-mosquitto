@@ -1,19 +1,19 @@
 set dotenv-load
 
 # package name
-PACKAGE_NAME := env("PACKAGE_NAME", "tedge-mosquitto")
+export PACKAGE_NAME := env("PACKAGE_NAME", if WITH_TLS == "true" { "tedge-mosquitto" } else { "tedge-mosquitto-notls" })
 
 # package version
-VERSION := env("VERSION", "2.0.22")
+export VERSION := env("VERSION", "2.0.22")
 
 # package version release suffix
-REVISION := env("REVISION", "1")
+export REVISION := env("REVISION", "1")
 
 # output directory for the linux packages
 OUTPUT_DIR := "dist"
 
 # build mosquitto with tls. Accepts either 'true' or 'false'
-WITH_TLS := env("WITH_TLS", "true")
+export WITH_TLS := env("WITH_TLS", "true")
 
 # list supported mosquitto versions
 list-versions:
@@ -29,16 +29,19 @@ list-versions:
 # Note: use --parallelism 1 due to a problem when running builds in parallel, most likely
 # caused by the openssl dependency
 [private]
+_release *ARGS='':
+    GORELEASER_CURRENT_TAG={{VERSION}} REVISION={{REVISION}} WITH_TLS={{WITH_TLS}} PACKAGE_NAME="{{PACKAGE_NAME}}" goreleaser release --parallelism 1 --auto-snapshot --skip=announce,publish,validate --clean {{ARGS}}
+
+[private]
 _build *ARGS='':
-    VERSION={{VERSION}} REVISION={{REVISION}} WITH_TLS={{WITH_TLS}} PACKAGE_NAME="{{PACKAGE_NAME}}" goreleaser release --parallelism 1 --auto-snapshot --skip=announce,publish,validate --clean {{ARGS}}
+    GORELEASER_CURRENT_TAG={{VERSION}} REVISION={{REVISION}} WITH_TLS={{WITH_TLS}} PACKAGE_NAME="{{PACKAGE_NAME}}" goreleaser build --parallelism 1 --auto-snapshot --clean {{ARGS}}
 
 # build the binary with tls enabled (default)
 build *ARGS='':
-    WITH_TLS=true just _build
+    WITH_TLS=true just _release
 
-# build the binary without tls enabled
-build-notls:
-    WITH_TLS=false just PACKAGE_NAME="{{PACKAGE_NAME}}-notls" _build
+build-target TARGET *ARGS='':
+    TARGET={{TARGET}} just _build --single-target
 
 # build using native zig command (to help with debugging)
 build-native *ARGS='':

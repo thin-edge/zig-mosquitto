@@ -44,11 +44,11 @@ jobs:
 
       - name: Build with tls
         if: ${{ matrix.job.tls }}
-        run: just build
+        run: just WITH_TLS=true build
 
       - name: Build without tls
         if: ${{ matrix.job.no_tls }}
-        run: just build-notls
+        run: just WITH_TLS=false build
       
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
