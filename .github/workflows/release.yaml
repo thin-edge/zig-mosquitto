@@ -39,9 +39,13 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Get Zig version
+        id: zig-version
+        run: echo "version=$(cat .zig-version)" >> "$GITHUB_OUTPUT"
+
       - uses: mlugg/setup-zig@v2
         with:
-          version: "0.15.1"
+          version: ${{ steps.zig-version.outputs.version }}
 
       - uses: extractions/setup-just@v2
         with:
