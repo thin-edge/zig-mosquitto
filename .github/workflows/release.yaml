@@ -58,10 +58,10 @@ jobs:
           install-only: true
 
       - name: Build with tls
-        run: just build
+        run: just WITH_TLS=true build
 
       - name: Build without tls
-        run: just build-notls
+        run: just WITH_TLS=false build
 
       - name: Release
         env:
