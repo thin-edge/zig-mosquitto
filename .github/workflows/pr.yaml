@@ -37,6 +37,7 @@ jobs:
       - uses: mlugg/setup-zig@v2
         with:
           version: ${{ steps.zig-version.outputs.version }}
+          cache-key: build-${{ matrix.job.version }}
 
       - uses: extractions/setup-just@v2
         with:
