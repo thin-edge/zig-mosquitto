@@ -3,6 +3,9 @@ version: 2
 project_name: tedge-mosquitto
 before:
   hooks:
+    # WORKAROUND: manually create zig fetch cache folder. Remove once https://codeberg.org/ziglang/zig/issues/35264
+    # next ziglang version is released
+    - sh -xc 'mkdir -p $(zig env | grep .global_cache_dir | cut -d\" -f2)/tmp'
     - test -e ./build/{{ .Env.VERSION }}
     - rm -f ./current
     - ln -s ./build/{{ .Env.VERSION }} current

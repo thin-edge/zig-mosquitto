@@ -1,6 +1,6 @@
 # zig build for mosquitto
 
-Cross compile mosquitto using zig build (tested with ziglang 0.15.1).
+Cross compile mosquitto using zig build (tested with ziglang 0.16.0).
 
 - produce static executables
 - support for TLS (with an option to disable it if it is not needed)
@@ -8,9 +8,12 @@ Cross compile mosquitto using zig build (tested with ziglang 0.15.1).
 - no websocket support
 - no systemd support (e.g. SDNotify isn't enabled)
 
+> **Warning**
+> Not all mosquitto versions are fully tested and may not work correctly.
+
 ## Build Pre-requisites
 
-* ziglang 0.15.1
+* ziglang 0.16.0
 * [just](https://github.com/casey/just) >= 1.15.0
 * [goreleaser](https://github.com/goreleaser/goreleaser) >= 2.15 (to coordinate the build and packaging)
 * UPX (optional: used to provide self-extracting binaries for devices with very limited file storage)
